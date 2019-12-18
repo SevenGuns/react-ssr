@@ -4,12 +4,6 @@ import Index from './src/containers/Index';
 import About from './src/containers/About';
 import User from './src/containers/User';
 
-// export default (
-//   <div>
-//     <Route path="/" exact component={Index}></Route>
-//     <Route path="/about" exact component={About}></Route>
-//   </div>
-// );
 export default [
   {
     path: '/',

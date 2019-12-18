@@ -12,7 +12,8 @@ const getUser = data => ({
 // effects
 export const getUserInfo = server => {
   return (dispatch, getState, axiosInstance) => {
-    return axios.get('http://localhost:9090/api/user/info12').then(res => {
+    //!FIX: 故意让部分接口报错
+    return axios.get('/api/user/info123').then(res => {
       const { data } = res.data;
       dispatch(getUser(data));
     });

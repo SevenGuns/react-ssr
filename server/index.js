@@ -2,6 +2,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter, matchPath, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import proxy from 'express-http-proxy';
 import Header from '../src/components/Header';
 import { getServerStore } from '../src/store/store';
 import express from 'express';
@@ -12,31 +13,44 @@ const app = express();
 
 app.use(express.static('public'));
 
+app.use(
+  '/api',
+  proxy('localhost:9090', {
+    proxyReqPathResolver(req) {
+      return `/api${req.url}`;
+    }
+  })
+);
 app.get('*', (req, res) => {
   const store = getServerStore();
   const promises = [];
-  routes.some(route => {
+  routes.forEach(route => {
     const match = matchPath(req.path, route);
     if (match) {
       const { loadData } = route.component;
-      if (loadData) promises.push(loadData(store));
+      if (loadData)
+        promises.push(
+          loadData(store).catch(err => {
+            console.error(err);
+          })
+        );
     }
     return match;
   });
-  Promise.all(promises).then(() => {
-    console.log(123);
-    const content = renderToString(
-      <Provider store={store}>
-        <StaticRouter location={req.url}>
-          <Header></Header>
-          {routes.map(route => (
-            <Route {...route}></Route>
-          ))}
-        </StaticRouter>
-      </Provider>
-    );
-    res.send(
-      `
+  Promise.all(promises)
+    .then(() => {
+      const content = renderToString(
+        <Provider store={store}>
+          <StaticRouter location={req.url}>
+            <Header></Header>
+            {routes.map(route => (
+              <Route {...route}></Route>
+            ))}
+          </StaticRouter>
+        </Provider>
+      );
+      res.send(
+        `
       <!DOCTYPE html>
       <html lang="zh-CN">
         <head>
@@ -53,8 +67,11 @@ app.get('*', (req, res) => {
       </html>
       
       `
-    );
-  });
+      );
+    })
+    .catch(err => {
+      res.send('错误');
+    });
 });
 
 app.listen(3004);
