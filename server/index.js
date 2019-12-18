@@ -3,7 +3,7 @@ import { renderToString } from 'react-dom/server';
 import { StaticRouter, matchPath, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import proxy from 'express-http-proxy';
-import { createAxiosInstance } from '../src/request';
+import axios from 'axios';
 import Header from '../src/components/Header';
 import { getServerStore } from '../src/store/store';
 import express from 'express';
@@ -23,7 +23,9 @@ app.use(
   })
 );
 app.get('*', (req, res) => {
-  const axiosInstance = createAxiosInstance();
+  const axiosInstance = axios.create({
+    baseURL: 'http://localhost:9090'
+  });
   const store = getServerStore(axiosInstance);
   const promises = [];
   routes.forEach(route => {
