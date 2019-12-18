@@ -1,14 +1,16 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import Index from './src/containers/Index';
-import About from './src/containers/About';
-import User from './src/containers/User';
+import Index from './containers/Index';
+import About from './containers/About';
+import User from './containers/User';
+import Notfound from './containers/Notfound';
+import './App.css';
 
 export default [
   {
     path: '/',
     component: Index,
-    // exact: true,
+    exact: true,
     key: 'index'
   },
   {
@@ -22,5 +24,10 @@ export default [
     component: User,
     exact: true,
     key: 'user'
+  },
+  {
+    component: Notfound,
+    exact: true,
+    key: 'notfount'
   }
 ];

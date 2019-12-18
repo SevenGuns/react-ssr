@@ -19,6 +19,10 @@ module.exports = {
         options: {
           presets: ['@babel/preset-react', ['@babel/preset-env']]
         }
+      },
+      {
+        test: /\.css$/,
+        loader: ['isomorphic-style-loader', 'css-loader']
       }
     ]
   }

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import { getUserInfo } from '../store/user';
 
 function User(props) {
@@ -9,11 +10,12 @@ function User(props) {
       props.getUserInfo();
     }
   }, []);
-  return (
-    <div>
-      你好！{title} ，你们最棒的人是{name}
-    </div>
-  );
+  return <Redirect to="/about"></Redirect>;
+  // return (
+  //   <div>
+  //     你好！{title} ，你们最棒的人是{name}
+  //   </div>
+  // );
 }
 
 User.loadData = store => store.dispatch(getUserInfo());

@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { StaticRouter, matchPath, Route } from 'react-router-dom';
+import { StaticRouter, matchPath, Route, Switch } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import proxy from 'express-http-proxy';
 import axios from 'axios';
@@ -8,7 +8,7 @@ import Header from '../src/components/Header';
 import { getServerStore } from '../src/store/store';
 import express from 'express';
 
-import routes from '../App';
+import routes from '../src/App.js';
 
 const app = express();
 
@@ -28,7 +28,7 @@ app.get('*', (req, res) => {
   });
   const store = getServerStore(axiosInstance);
   const promises = [];
-  routes.forEach(route => {
+  routes.some(route => {
     const match = matchPath(req.path, route);
     if (match) {
       const { loadData } = route.component;
@@ -43,16 +43,26 @@ app.get('*', (req, res) => {
   });
   Promise.all(promises)
     .then(() => {
+      const context = {};
       const content = renderToString(
         <Provider store={store}>
-          <StaticRouter location={req.url}>
+          <StaticRouter location={req.url} context={context}>
             <Header></Header>
-            {routes.map(route => (
-              <Route {...route}></Route>
-            ))}
+            <Switch>
+              {routes.map(route => (
+                <Route {...route}></Route>
+              ))}
+            </Switch>
           </StaticRouter>
         </Provider>
       );
+      console.log(context);
+      if (context.statusCode) {
+        res.status(context.statusCode);
+      }
+      if (context.action === 'REPLACE') {
+        res.redirect(301, context.url);
+      }
       res.send(
         `
       <!DOCTYPE html>
@@ -61,6 +71,7 @@ app.get('*', (req, res) => {
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
           <title>Document</title>
         </head>
         <body>
