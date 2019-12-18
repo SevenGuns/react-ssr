@@ -8,9 +8,13 @@ const reducer = combineReducers({
   user: userReducer
 });
 
-export const getClientStore = () => {
+export const getClientStore = axiosInstance => {
   const defaultState = window.__context ? window.__context : {};
-  return createStore(reducer, defaultState, applyMiddleware(thunk));
+  return createStore(
+    reducer,
+    defaultState,
+    applyMiddleware(thunk.withExtraArgument(axiosInstance))
+  );
 };
-export const getServerStore = () =>
-  createStore(reducer, applyMiddleware(thunk));
+export const getServerStore = axiosInstance =>
+  createStore(reducer, applyMiddleware(thunk.withExtraArgument(axiosInstance)));

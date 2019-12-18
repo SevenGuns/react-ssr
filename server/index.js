@@ -3,6 +3,7 @@ import { renderToString } from 'react-dom/server';
 import { StaticRouter, matchPath, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import proxy from 'express-http-proxy';
+import { createAxiosInstance } from '../src/request';
 import Header from '../src/components/Header';
 import { getServerStore } from '../src/store/store';
 import express from 'express';
@@ -22,7 +23,8 @@ app.use(
   })
 );
 app.get('*', (req, res) => {
-  const store = getServerStore();
+  const axiosInstance = createAxiosInstance();
+  const store = getServerStore(axiosInstance);
   const promises = [];
   routes.forEach(route => {
     const match = matchPath(req.path, route);

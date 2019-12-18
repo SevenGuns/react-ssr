@@ -13,7 +13,7 @@ const getUser = data => ({
 export const getUserInfo = server => {
   return (dispatch, getState, axiosInstance) => {
     //!FIX: 故意让部分接口报错
-    return axios.get('/api/user/info123').then(res => {
+    return axiosInstance.get('/api/user/info123').then(res => {
       const { data } = res.data;
       dispatch(getUser(data));
     });

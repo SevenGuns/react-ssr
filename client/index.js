@@ -2,11 +2,12 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { createAxiosInstance } from '../src/request';
 import Header from '../src/components/Header';
 import { getClientStore } from '../src/store/store';
 import routes from '../App';
-
-const store = getClientStore();
+const axiosInstance = createAxiosInstance();
+const store = getClientStore(axiosInstance);
 const Page = (
   <Provider store={store}>
     <BrowserRouter>
