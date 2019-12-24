@@ -1,5 +1,6 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   target: 'node',
@@ -10,6 +11,13 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'build')
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      filename: 'index.csr.html',
+      template: 'src/index.csr.html',
+      inject: true
+    })
+  ],
   module: {
     rules: [
       {
@@ -22,7 +30,16 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        loader: ['isomorphic-style-loader', 'css-loader']
+        loader: [
+          'isomorphic-style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              // 启用css-module
+              modules: true
+            }
+          }
+        ]
       }
     ]
   }

@@ -20,5 +20,10 @@ const Page = (
     </BrowserRouter>
   </Provider>
 );
-// 注水 客户端入口
-ReactDom.hydrate(Page, document.getElementById('app'));
+if (window.__context) {
+  // 注水 客户端入口
+  ReactDom.hydrate(Page, document.getElementById('app'));
+  // 处理csr降级
+} else {
+  ReactDom.render(Page, document.getElementById('app'));
+}

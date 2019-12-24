@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter, matchPath, Route, Switch } from 'react-router-dom';
@@ -22,7 +24,21 @@ app.use(
     }
   })
 );
+const renderCsr = res => {
+  const filename = path.resolve(process.cwd(), 'public/index.csr.html');
+  const file = fs.readFileSync(filename);
+  res.end(file);
+};
+app.get('/favicon.ico', (_, res) => {
+  const filename = path.resolve(process.cwd(), 'favicon.ico');
+  res.setHeader('Content-Type', 'image/x-icon');
+  const stream = fs.createReadStream(filename);
+  stream.pipe(res);
+});
 app.get('*', (req, res) => {
+  if (req.query._mode === 'csr') {
+    return renderCsr(res);
+  }
   const axiosInstance = axios.create({
     baseURL: 'http://localhost:9090'
   });
@@ -43,7 +59,9 @@ app.get('*', (req, res) => {
   });
   Promise.all(promises)
     .then(() => {
-      const context = {};
+      const context = {
+        css: []
+      };
       const content = renderToString(
         <Provider store={store}>
           <StaticRouter location={req.url} context={context}>
@@ -56,13 +74,13 @@ app.get('*', (req, res) => {
           </StaticRouter>
         </Provider>
       );
-      console.log(context);
       if (context.statusCode) {
         res.status(context.statusCode);
       }
       if (context.action === 'REPLACE') {
         res.redirect(301, context.url);
       }
+      const styles = context.css.join('/n');
       res.send(
         `
       <!DOCTYPE html>
@@ -71,7 +89,9 @@ app.get('*', (req, res) => {
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-
+          <style>
+          ${styles}
+          </style>
           <title>Document</title>
         </head>
         <body>
@@ -85,6 +105,7 @@ app.get('*', (req, res) => {
       );
     })
     .catch(err => {
+      console.error(err);
       res.send('错误');
     });
 });
