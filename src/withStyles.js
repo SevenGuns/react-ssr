@@ -1,4 +1,5 @@
 import React from 'react';
+import hoistNonReactStatic from 'hoist-non-react-statics';
 // 高阶组件 在context中添加styles
 export default function withStyles(style) {
   return ComposedComponent => {
@@ -9,6 +10,7 @@ export default function withStyles(style) {
       }
       return <ComposedComponent {...props}></ComposedComponent>;
     }
+    hoistNonReactStatic(WithStyles, ComposedComponent);
     const displayName =
       ComposedComponent.displayName || ComposedComponent.name || 'Component';
     WithStyles.displayName = `WithStyles(${displayName})`;

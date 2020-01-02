@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getIndexList } from '../store/index';
+import withStyles from '../withStyles';
 import { connect } from 'react-redux';
+import styles from './Index.css';
 function Index(props) {
   const { title, list } = props;
   const [count, setCount] = useState(1);
@@ -10,7 +12,7 @@ function Index(props) {
     }
   }, []);
   return (
-    <div>
+    <div className={styles.content}>
       <div>{title}</div>
       <div>{count}</div>
       <div>
@@ -35,4 +37,4 @@ export default connect(
   {
     getIndexList
   }
-)(Index);
+)(withStyles(styles)(Index));
